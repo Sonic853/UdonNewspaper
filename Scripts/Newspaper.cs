@@ -6,10 +6,11 @@ using VRC.Udon;
 using UdonLab.UrlLoader;
 using System;
 using Sonic853.Toolkit;
+using VRC.Udon.Common.Interfaces;
 
 namespace Sonic853.Newspaper
 {
-    public class Newspaper : UdonSharpBehaviour
+    public class Newspaper : SyncBehaviour
     {
         [SerializeField] Animator animator;
         [SerializeField] UrlsImageLoader urlsImageLoader;
@@ -19,14 +20,13 @@ namespace Sonic853.Newspaper
         [SerializeField] VRCUrl[] vRCUrls;
         [SerializeField] Texture2D[] textures;
         [SerializeField] Texture2D defaultTexture;
-        int index;
-        // [UdonSynced] 
+        bool isLoaded = false;
+        [UdonSynced] int index;
         public int size;
-        // [UdonSynced] public string currentState = "Default";
-        // protected override 
-        void Start()
+        [UdonSynced] string currentState = "Default";
+        [SerializeField] bool syncObj = false;
+        protected override void Start()
         {
-            // base.Start();
             textures = new Texture2D[vRCUrls.Length];
             for (int i = 0; i < textures.Length; i++)
             {
@@ -34,24 +34,29 @@ namespace Sonic853.Newspaper
             }
             LoadPaper();
             size = 30;
+            if (syncObj) base.Start();
         }
-        public void LoadPaper()
+        public void LoadPaper() => LoadPaper(false);
+        public void ReLoadPaper() => LoadPaper(true);
+        public void LoadPaper(bool reload = false)
         {
-            urlsStringLoader.PushUrl(sizeUrl, GetComponent<UdonBehaviour>(), nameof(SetPageLoadImage), nameof(SetPage_size));
+            urlsStringLoader.PushUrl(sizeUrl, GetComponent<UdonBehaviour>(), nameof(SetPageLoadImage), nameof(SetPage_size), reload);
         }
         [NonSerialized] public string SetPage_size;
-        public void SetPageLoadImage()
+        public void SetPageLoadImage() => SetPageLoadImage(false);
+        public void SetPageReLoadImage() => SetPageLoadImage(true);
+        public void SetPageLoadImage(bool reload = false)
         {
             SetPage(SetPage_size);
             var lastPage = false;
             for (int i = 1; i < size; i++)
             {
                 var i1 = i - 1;
-                urlsImageLoader.PushUrl(vRCUrls[i1], GetComponent<UdonBehaviour>(), $"LoadImage{i}", nameof(LoadImage_texture));
+                urlsImageLoader.PushUrl(vRCUrls[i1], GetComponent<UdonBehaviour>(), $"LoadImage{i}", nameof(LoadImage_texture), reload);
                 if (!lastPage)
                 {
                     lastPage = true;
-                    urlsImageLoader.PushUrl(vRCUrls[size - 1], GetComponent<UdonBehaviour>(), $"LoadImage{size}", nameof(LoadImage_texture));
+                    urlsImageLoader.PushUrl(vRCUrls[size - 1], GetComponent<UdonBehaviour>(), $"LoadImage{size}", nameof(LoadImage_texture), reload);
                 }
             }
         }
@@ -61,6 +66,7 @@ namespace Sonic853.Newspaper
             int.TryParse(_size, out size);
             if (size % 2 == 1)
                 size--;
+            isLoaded = true;
         }
         [NonSerialized] public Texture2D LoadImage_texture;
         public void LoadImage1() => LoadImage(0, LoadImage_texture);
@@ -114,15 +120,23 @@ namespace Sonic853.Newspaper
             imageDisplayers[3].SetTexture(textures[_index + 2]);
             imageDisplayers[4].SetTexture(textures[_index + 3]);
         }
-        public void Next()
+        public void NextAll()
         {
+            if (syncObj && !isSynced) { return; }
+            SendCustomNetworkEvent(NetworkEventTarget.All, nameof(NextForce));
+        }
+        public void Next() => Next(false);
+        public void NextForce() => Next(true);
+        public void Next(bool force = false)
+        {
+            if (!isLoaded && !force) { return; }
             if (index + 4 > size)
             {
                 if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Open3"))
                 {
                     animator.SetTrigger("Open3");
                     UpdateImage(false);
-                    // currentState = "Open3";
+                    currentState = "Open3";
                 }
                 return;
             }
@@ -140,14 +154,22 @@ namespace Sonic853.Newspaper
                 animator.SetTrigger("Open2");
                 SendCustomEventDelayedSeconds(nameof(UpdateImage), 0.251f);
             }
-            // currentState = "Open1";
+            currentState = "Open1";
         }
-        public void Previous()
+        public void PreviousAll()
         {
+            if (syncObj && !isSynced) { return; }
+            SendCustomNetworkEvent(NetworkEventTarget.All, nameof(PreviousForce));
+        }
+        public void Previous() => Previous(false);
+        public void PreviousForce() => Previous(true);
+        public void Previous(bool force = false)
+        {
+            if (!isLoaded && !force) { return; }
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("Open3"))
             {
                 animator.SetTrigger("Open1");
-                // currentState = "Open1";
+                currentState = "Open1";
                 return;
             }
             if (index == 0) { return; }
@@ -156,7 +178,7 @@ namespace Sonic853.Newspaper
                 index = 0;
                 animator.Play("Open1", 0);
                 animator.SetTrigger("Default");
-                // currentState = "Default";
+                currentState = "Default";
             }
             else
             {
@@ -164,19 +186,24 @@ namespace Sonic853.Newspaper
                 if (animator.GetCurrentAnimatorStateInfo(0).IsName("Open3"))
                 {
                     animator.SetTrigger("Open2");
-                    // currentState = "Open2";
+                    currentState = "Open2";
                 }
                 else
                 {
                     animator.Play("Open2", 0);
                     animator.SetTrigger("Open1");
-                    // currentState = "Open1";
+                    currentState = "Open1";
                 }
             }
             UpdateImage(false);
         }
         #region 同步
-
+        public override void OnDeserialization()
+        {
+            base.OnDeserialization();
+            animator.Play(currentState, 0);
+            UpdateImage(false);
+        }
         #endregion
     }
 }

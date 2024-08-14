@@ -7,7 +7,7 @@ using VRC.Udon.Common.Interfaces;
 
 namespace Sonic853.Newspaper
 {
-
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class SyncBehaviour : UdonSharpBehaviour
     {
         protected bool isSynced = false;
