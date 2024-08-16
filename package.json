@@ -1,0 +1,18 @@
+{
+  "name": "com.sonic853.newspaper",
+  "version": "1.0.0",
+  "displayName": "Sonic853 - Udon Newspaper",
+  "description": "看报纸的地方",
+  "unity": "2022.3",
+  "homepage": "https://github.com/Sonic853/UdonNewspaper",
+  "documentationUrl": "https://github.com/Sonic853/UdonNewspaper",
+  "changelogUrl": "https://github.com/UdonLab/UdonNewspaper/releases",
+  "licensesUrl": "https://github.com/UdonLab/UdonNewspaper/blob/master/LICENSE",
+  "license": "LGPL-3.0-or-later",
+  "keywords": [],
+  "author": {
+    "name": "Sonic853",
+    "email": "sonic853@qq.com",
+    "url": "https://github.com/Sonic853"
+  }
+}
