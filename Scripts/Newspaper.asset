@@ -175,7 +175,7 @@ MonoBehaviour:
       Data: 10|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UdonLab.UrlLoader.UrlsImageLoader, UdonLab.UrlLoader
+      Data: UdonLab.UrlLoader.UrlsImageLoader, Sonic853.UdonLab.UrlLoader
     - Name: 
       Entry: 8
       Data: 
@@ -241,7 +241,7 @@ MonoBehaviour:
       Data: 15|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UdonLab.UrlLoader.UrlsStringLoader, UdonLab.UrlLoader
+      Data: UdonLab.UrlLoader.UrlsStringLoader, Sonic853.UdonLab.UrlLoader
     - Name: 
       Entry: 8
       Data: 

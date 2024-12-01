@@ -4,7 +4,7 @@
     "references": [
         "VRC.Udon",
         "UdonSharp.Runtime",
-        "UdonLab.UrlLoader"
+        "Sonic853.UdonLab.UrlLoader"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
