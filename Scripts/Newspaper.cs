@@ -3,10 +3,10 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
-using UdonLab.UrlLoader;
 using System;
 using Sonic853.Toolkit;
 using VRC.Udon.Common.Interfaces;
+using Sonic853.Udon.UrlLoader;
 
 namespace Sonic853.Newspaper
 {
